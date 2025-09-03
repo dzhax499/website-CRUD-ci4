@@ -2,10 +2,10 @@
 
 namespace App\Controllers;
 
-class Home extends BaseController
+class haii extends BaseController
 {
     public function index(): string
     {
-        return ('ello');
+        return view(name:'hello');
     }
 }
