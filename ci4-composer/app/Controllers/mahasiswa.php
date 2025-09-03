@@ -1,17 +1,15 @@
-<?php 
+<?php
 namespace App\Controllers;
 
 use App\Models\MahasiswaModel;
 
-class mahasiswa extends BaseController
+class Mahasiswa extends BaseController
 {
     public function display()
     {
-        $model = new MahasiswaModel;
-
+        $model = new MahasiswaModel();
         $data['mahasiswa'] = $model->getMahasiswa();
 
         return view('v_mahasiswa', $data);
     }
 }
-?>
