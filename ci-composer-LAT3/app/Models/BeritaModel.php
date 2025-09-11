@@ -7,6 +7,6 @@ use CodeIgniter\Model;
 class BeritaModel extends Model
 {
     protected $table = 'biodata';
-    protected $primaryKey = 'id';
+    protected $primaryKey = 'nim';
     protected $allowedFields = ['nim', 'nama_lengkap', 'umur'];
 }

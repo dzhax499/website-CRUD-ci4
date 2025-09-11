@@ -10,9 +10,7 @@ class Berita extends BaseController
     {
         $beritaModel = new BeritaModel();
         $data['title'] = "Daftar Berita";
-        $data['content'] = view('berita/index', [
-            'berita' => $beritaModel->findAll()
-        ]);
+        $data['content'] = view('berita/index', ['berita' => $beritaModel->findAll()]);
 
         return view('layout', $data);
     }
