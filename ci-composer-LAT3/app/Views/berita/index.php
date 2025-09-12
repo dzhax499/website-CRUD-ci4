@@ -1,11 +1,14 @@
-<h3>Daftar Berita</h3>
-
-<ul>
-    <?php foreach ($berita as $row): ?>
-        <li>
-            <strong><?= esc($row['nim']) ?></strong><br>
-            <h1>NAMA : <?= esc($row['nama_lengkap']) ?><br></h1>
-            <h2>UMUR : <?= esc($row['umur']) ?></h2>
-        </li>
+<h3>Daftar Mahasiswa</h3>
+<table border="1" cellpadding="8" cellspacing="0">
+    <tr>
+        <th>NIM</th><th>Nama</th><th>Jurusan</th><th>Aksi</th>
+    </tr>
+    <?php foreach ($mhs as $row): ?>
+    <tr>
+        <td><?= esc($row['nim']) ?></td>
+        <td><?= esc($row['nama']) ?></td>
+        <td><?= esc($row['jurusan']) ?></td>
+        <td><a href="<?= base_url('mahasiswa/detail/'.$row['id']) ?>">Detail</a></td>
+    </tr>
     <?php endforeach; ?>
-</ul>
+</table>
