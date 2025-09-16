@@ -17,16 +17,4 @@ class Mahasiswa extends BaseController
 
         return view('layout', $data);
     }
-
-    // public function detail($id)
-    // {
-    //     $model = new Mahasiswa_models();
-    //     $data['title'] = "Detail Mahasiswa";
-    //     // PERBAIKAN: Menggunakan variabel yang konsisten (mhsindex)
-    //     $data['content'] = view('mahasiswa/detail_mahasiswa', [
-    //         'mhsindex' => $model->find($id)
-    //     ]);
-
-    //     return view('layout', $data);
-    // }
 }
