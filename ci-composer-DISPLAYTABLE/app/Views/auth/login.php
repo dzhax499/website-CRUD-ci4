@@ -15,25 +15,25 @@
             </div>
         <?php endif; ?>
 
-        <?= form_open('auth/authenticate') ?>
-        <div class="form-group">
-            <label for="username">Username:</label>
-            <input type="text" name="username" id="username" value="<?= old('username') ?>" required>
-            <?php if (isset($errors['username'])): ?>
-                <span class="error"><?= $errors['username'] ?></span>
-            <?php endif; ?>
-        </div>
+        <form action="<?= base_url('auth/authenticate') ?>" method="post">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" name="username" id="username" value="<?= old('username') ?>" required>
+                <?php if (isset($errors['username'])): ?>
+                    <span class="error"><?= $errors['username'] ?></span>
+                <?php endif; ?>
+            </div>
 
-        <div class="form-group">
-            <label for="password">Password:</label>
-            <input type="password" name="password" id="password" required>
-            <?php if (isset($errors['password'])): ?>
-                <span class="error"><?= $errors['password'] ?></span>
-            <?php endif; ?>
-        </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" name="password" id="password" required>
+                <?php if (isset($errors['password'])): ?>
+                    <span class="error"><?= $errors['password'] ?></span>
+                <?php endif; ?>
+            </div>
 
-        <button type="submit" class="btn btn-primary">Login</button>
-        <?= form_close() ?>
+            <button type="submit" class="btn btn-primary">Login</button>
+        </form> 
 
         <p class="register-link">
             Belum punya akun? <a href="<?= base_url('auth/register') ?>">Daftar di sini</a>
