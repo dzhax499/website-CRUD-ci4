@@ -24,12 +24,12 @@ class User_model extends Model
     protected $updatedField = 'updated_at';
     // method
 
-    public function authenticate($username , $password)
+    public function authenticate($username, $password)
     {
-        $user = $this->where('username', $username)->where('role =/','course')->first();
+        // Hapus kondisi role, sehingga model akan mencari berdasarkan username saja
+        $user = $this->where('username', $username)->first();
 
-        if ($user && password_verify($password, $user['password'])) 
-        {
+        if ($user && password_verify($password, $user['password'])) {
             return $user;
         }
         return false;
