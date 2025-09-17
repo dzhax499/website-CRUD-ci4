@@ -2,7 +2,7 @@
 <div class="container-fluid vh-100">
     <div class="row h-100">
         <!-- Left Side - Welcome Message -->
-        <div class="col-lg-6 d-none d-lg-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="col-lg-6 d-none d-lg-flex align-items-center justify-content-center" style="background:#667eea">
             <div class="text-center text-white">
                 <div class="mb-4">
                     <i class="bi bi-mortarboard display-1"></i>
@@ -119,13 +119,6 @@
 
                         <hr class="my-4">
 
-                        <div class="text-center">
-                            <p class="text-muted mb-3">Belum punya akun?</p>
-                            <a href="<?= base_url('auth/register') ?>" class="btn btn-outline-primary w-100">
-                                <i class="bi bi-person-plus me-2"></i>
-                                Daftar Sebagai Mahasiswa
-                            </a>
-                        </div>
 
                         <div class="mt-4">
                             <div class="card bg-light">
