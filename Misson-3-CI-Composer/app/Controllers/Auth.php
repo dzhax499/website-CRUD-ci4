@@ -15,7 +15,7 @@ class Auth extends BaseController
         $data['title'] = 'Login - Sistem Akademik';
         $data['content'] = view('auth/login');
 
-        return view('layout', $data);
+        return view('layout_dashboard', $data);
     }
 
     public function authenticate()
@@ -62,7 +62,7 @@ class Auth extends BaseController
         $data['title'] = 'Register - Sistem Akademik';
         $data['content'] = view('auth/register');
 
-        return view('layout', $data);
+        return view('layout_dashboard', $data);
     }
 
     public function store()
