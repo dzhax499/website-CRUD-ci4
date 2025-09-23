@@ -18,7 +18,7 @@ class Admin extends BaseController
         }
     }
 
-    // ===== COURSE MANAGEMENT =====
+    // ===== COURSE MANAGEMENT (Kode yang sudah ada) =====
     public function courses()
     {
         $model = new User_model();
@@ -70,7 +70,8 @@ class Admin extends BaseController
             'role' => 'course',
             'enrolled_courses' => json_encode($courseData),
             'status' => 'active',
-            'email' => 'course@kampus.ac.id'
+            'email' => 'course@kampus.ac.id',
+            'password' => 'default_course_password_hash' // Password placeholder
         ];
 
         if ($model->insert($data)) {
@@ -145,7 +146,7 @@ class Admin extends BaseController
         }
     }
 
-    // ===== STUDENT MANAGEMENT =====
+    // ===== STUDENT MANAGEMENT (Kode yang sudah ada) =====
     public function students()
     {
         $model = new User_model();
@@ -172,4 +173,44 @@ class Admin extends BaseController
 
         return view('layout_dashboard', $data);
     }
+    
+    // ===== ENROLLMENT MANAGEMENT (Fungsi Baru) =====
+    public function manageEnrollment($nim)
+    {
+        $model = new User_model();
+        $student = $model->where('nim', $nim)->where('role', 'student')->first();
+
+        if (!$student) {
+            return redirect()->to('/admin/students')->with('error', 'Student tidak ditemukan!');
+        }
+
+        $data['title'] = 'Kelola Enrollment untuk ' . $student['nama_lengkap'];
+        $data['student'] = $student;
+        $data['enrolled_courses'] = $model->getStudentEnrollments($nim);
+        $data['all_courses'] = $model->getCourses();
+        $data['content'] = view('admin/manage_enrollment', $data);
+
+        return view('layout_dashboard', $data);
+    }
+
+    public function enroll($studentNim, $courseCode)
+    {
+        $model = new User_model();
+        if ($model->enrollCourse($studentNim, $courseCode)) {
+            return redirect()->to('/admin/manageEnrollment/' . $studentNim)->with('success', 'Mahasiswa berhasil di-enroll!');
+        } else {
+            return redirect()->to('/admin/manageEnrollment/' . $studentNim)->with('error', 'Gagal melakukan enrollment. Mungkin sudah terdaftar.');
+        }
+    }
+
+    public function unenroll($studentNim, $courseCode)
+    {
+        $model = new User_model();
+        if ($model->unenrollCourse($studentNim, $courseCode)) {
+            return redirect()->to('/admin/manageEnrollment/' . $studentNim)->with('success', 'Mahasiswa berhasil di-unenroll!');
+        } else {
+            return redirect()->to('/admin/manageEnrollment/' . $studentNim)->with('error', 'Gagal melakukan unenroll. Mungkin tidak terdaftar.');
+        }
+    }
+
 }

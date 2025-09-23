@@ -37,9 +37,11 @@ class Student extends BaseController
     public function enrollments()
     {
         $model = new User_model();
-        $data['title'] = 'My Courses';
-        $data['enrolled_courses'] = $model->getStudentEnrollments($this->session->get('user_nim'));
-        $data['content'] = view('student/enrollments', $data);
+        $studentNim = $this->session->get('user_nim');
+
+        $data['title'] = 'Mata Kuliah Saya';
+        $data['enrolled_courses'] = $model->getStudentEnrollments($studentNim);
+        $data['content'] = view('student/enrollments', $data); 
 
         return view('layout_dashboard', $data);
     }

@@ -7,10 +7,10 @@ use CodeIgniter\Router\RouteCollection;
  */
 
 // Default route
-$routes->get('/', 'Home::index');
+$routes->get('/home', 'Auth::login');
 
 // Home routes
-$routes->get('/home', 'Home::index');
+$routes->get('/', 'Auth::login');
 
 // Mahasiswa routes (existing)
 $routes->get('/mahasiswa', 'Mahasiswa::index');
