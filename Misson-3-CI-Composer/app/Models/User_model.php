@@ -20,8 +20,9 @@ class User_model extends Model
             'created_at',
             'updated_at'];
     protected $useTimestamps = true;
-    protected $createdField = 'create_at';
+    protected $createdField = 'created_at';
     protected $updatedField = 'updated_at';
+
     // method
 
     public function authenticate($username, $password)

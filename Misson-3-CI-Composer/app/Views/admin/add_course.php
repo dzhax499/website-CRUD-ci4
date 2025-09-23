@@ -12,7 +12,7 @@
         </div>
     <?php endif; ?>
 
-    <form action="<?= base_url('admin/courses/store') ?>" method="post">
+    <form action="<?= base_url('admin/courses/store/') ?>" method="post">
         <?= csrf_field() ?>
         <div class="form-group">
             <label for="kode_mk">Kode Mata Kuliah</label>

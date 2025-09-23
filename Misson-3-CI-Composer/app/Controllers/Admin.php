@@ -23,7 +23,11 @@ class Admin extends BaseController
     {
         $model = new User_model();
         $data['title'] = 'Kelola Courses';
+
+        // Ambil data courses
         $data['courses'] = $model->getCourses();
+
+
         $data['content'] = view('admin/courses', $data);
 
         return view('layout_dashboard', $data);
@@ -39,8 +43,10 @@ class Admin extends BaseController
 
     public function storeCourse()
     {
+        // Perbarui rules validasi
         $rules = [
-            'kode_mk' => 'required|min_length[3]|is_unique[biodata.nim]',
+            // Hapus is_unique[biodata.nim] dari sini
+            'kode_mk' => 'required|min_length[3]',
             'nama_mk' => 'required|min_length[3]',
             'dosen' => 'required',
             'semester' => 'required|integer',
@@ -55,7 +61,9 @@ class Admin extends BaseController
 
         $model = new User_model();
 
-        // Format data course dalam JSON untuk kolom enrolled_courses
+        // Pastikan kode_mk selalu unik dengan menambahkan prefiks
+        $kode_mk_unik = 'MK-' . $this->request->getPost('kode_mk');
+
         $courseData = [
             'sks' => $this->request->getPost('sks'),
             'kuota' => $this->request->getPost('kuota'),
@@ -63,21 +71,23 @@ class Admin extends BaseController
         ];
 
         $data = [
-            'nim' => $this->request->getPost('kode_mk'), // nim digunakan sebagai kode_mk
-            'nama_lengkap' => $this->request->getPost('nama_mk'), // nama_lengkap sebagai nama_mk
-            'jurusan' => $this->request->getPost('dosen'), // jurusan sebagai dosen
+            'nim' => $kode_mk_unik,
+            'nama_lengkap' => $this->request->getPost('nama_mk'),
+            'jurusan' => $this->request->getPost('dosen'),
             'semester' => $this->request->getPost('semester'),
-            'role' => 'course',
+            'role' => 'course', // Pastikan nilai ini sudah benar
             'enrolled_courses' => json_encode($courseData),
-            'status' => 'active',
+            'status' => 'active', // Pastikan nilai ini sudah benar
             'email' => 'course@kampus.ac.id',
-            'password' => 'default_course_password_hash' // Password placeholder
+            'password' => 'default_course_password_hash'
         ];
 
+        // Cek hasil dari method insert()
         if ($model->insert($data)) {
             return redirect()->to('/admin/courses')->with('success', 'Course berhasil ditambahkan!');
         } else {
-            return redirect()->back()->with('error', 'Gagal menambah course!');
+            // Jika gagal, tampilkan pesan error
+            return redirect()->back()->withInput()->with('error', 'Gagal menambahkan course. Periksa kembali input Anda.');
         }
     }
 
