@@ -45,7 +45,6 @@ class Admin extends BaseController
     {
         // Perbarui rules validasi
         $rules = [
-            // Hapus is_unique[biodata.nim] dari sini
             'kode_mk' => 'required|min_length[3]',
             'nama_mk' => 'required|min_length[3]',
             'dosen' => 'required',
@@ -75,9 +74,9 @@ class Admin extends BaseController
             'nama_lengkap' => $this->request->getPost('nama_mk'),
             'jurusan' => $this->request->getPost('dosen'),
             'semester' => $this->request->getPost('semester'),
-            'role' => 'course', // Pastikan nilai ini sudah benar
+            'role' => 'course', 
             'enrolled_courses' => json_encode($courseData),
-            'status' => 'active', // Pastikan nilai ini sudah benar
+            'status' => 'active', 
             'email' => 'course@kampus.ac.id',
             'password' => 'default_course_password_hash'
         ];

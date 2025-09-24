@@ -46,9 +46,7 @@ class User_model extends Model
     // Method untuk mendapatkan semua courses
     public function getCourses()
     {
-        return $this->where('role', 'course')
-            ->where('status', 'active')
-            ->findAll();
+        return $this->where('role', 'course')->findAll();
     }
 
     // Method untuk enrollment course
