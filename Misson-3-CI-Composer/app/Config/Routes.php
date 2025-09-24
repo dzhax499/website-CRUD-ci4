@@ -39,6 +39,11 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     // Student management
     $routes->get('students', 'Admin::students');
     $routes->get('students/view/(:any)', 'Admin::viewStudent/$1');
+
+    // Enrollment management
+    $routes->get('manageEnrollment/(:any)', 'Admin::manageEnrollment/$1');
+    $routes->get('enroll/(:any)/(:any)', 'Admin::enroll/$1/$2');
+    $routes->get('unenroll/(:any)/(:any)', 'Admin::unenroll/$1/$2');
 });
 
 // Student routes (protected)

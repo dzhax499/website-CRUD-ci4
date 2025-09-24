@@ -20,19 +20,27 @@
                     <th>Nama Mata Kuliah</th>
                     <th>Dosen</th>
                     <th>Semester</th>
+                    <th>SKS</th>
+                    <th>Kuota</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($courses as $course) : ?>
+                    <?php
+                    // Decode course details dari JSON
+                    $courseDetail = json_decode($course['enrolled_courses'], true);
+                    ?>
                     <tr>
                         <td><?= esc($course['nim']) ?></td>
                         <td><?= esc($course['nama_lengkap']) ?></td>
                         <td><?= esc($course['jurusan']) ?></td>
                         <td><?= esc($course['semester']) ?></td>
+                        <td><?= isset($courseDetail['sks']) ? esc($courseDetail['sks']) : '-' ?></td>
+                        <td><?= isset($courseDetail['kuota']) ? esc($courseDetail['kuota']) : '-' ?></td>
                         <td>
-                            <a href="<?= base_url('admin/courses/add/' . esc($course['nim'])) ?>" class="btn btn-warning btn-sm">Edit</a>
-                            <a href="<?= base_url('admin/deleteCourse/' . esc($course['nim'])) ?>" class="btn btn-danger btn-sm" onclick="return confirm('Apakah Anda yakin ingin menghapus mata kuliah ini?');">Hapus</a>
+                            <a href="<?= base_url('admin/courses/edit/' . esc($course['nim'])) ?>" class="btn btn-warning btn-sm">Edit</a>
+                            <a href="<?= base_url('admin/courses/delete/' . esc($course['nim'])) ?>" class="btn btn-danger btn-sm" onclick="return confirm('Apakah Anda yakin ingin menghapus mata kuliah ini?');">Hapus</a>
                         </td>
                     </tr>
                 <?php endforeach; ?>

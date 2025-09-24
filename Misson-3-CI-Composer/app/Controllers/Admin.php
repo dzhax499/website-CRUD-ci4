@@ -74,19 +74,33 @@ class Admin extends BaseController
             'nama_lengkap' => $this->request->getPost('nama_mk'),
             'jurusan' => $this->request->getPost('dosen'),
             'semester' => $this->request->getPost('semester'),
-            'role' => 'course', 
+            'role' => 'course',
             'enrolled_courses' => json_encode($courseData),
-            'status' => 'active', 
+            'status' => 'active',
             'email' => 'course@kampus.ac.id',
-            'password' => 'default_course_password_hash'
+            'password' => password_hash('default_password', PASSWORD_DEFAULT)
         ];
 
-        // Cek hasil dari method insert()
-        if ($model->insert($data)) {
-            return redirect()->to('/admin/courses')->with('success', 'Course berhasil ditambahkan!');
-        } else {
-            // Jika gagal, tampilkan pesan error
-            return redirect()->back()->withInput()->with('error', 'Gagal menambahkan course. Periksa kembali input Anda.');
+        try {
+            // Cek apakah kode MK sudah ada
+            $existingCourse = $model->where('nim', $kode_mk_unik)->first();
+            if ($existingCourse) {
+                return redirect()->back()->withInput()->with('error', 'Kode mata kuliah sudah ada!');
+            }
+
+            // Insert data - method insert() mengembalikan inserted ID atau false
+            $insertResult = $model->insert($data);
+
+            if ($insertResult !== false) {
+                return redirect()->to('/admin/courses')->with('success', 'Course berhasil ditambahkan!');
+            } else {
+                // Log error untuk debugging
+                log_message('error', 'Failed to insert course: ' . json_encode($model->errors()));
+                return redirect()->back()->withInput()->with('error', 'Gagal menambahkan course: ' . implode(', ', $model->errors()));
+            }
+        } catch (\Exception $e) {
+            log_message('error', 'Exception in storeCourse: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Terjadi error: ' . $e->getMessage());
         }
     }
 
