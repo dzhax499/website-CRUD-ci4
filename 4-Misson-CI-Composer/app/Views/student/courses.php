@@ -127,3 +127,8 @@
         color: white;
     }
 </style>
+
+<script>
+        const courses = <?= json_encode($courses ?? []) ?>;
+        console.log("Courses dari PHP:", courses);
+</script>
