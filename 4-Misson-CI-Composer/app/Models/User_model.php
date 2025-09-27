@@ -69,6 +69,35 @@ class User_model extends Model
         return false;
     }
 
+    //multiple enroll (checkbox)
+    // public function enrollMultipleCourses($studentNim, $courseCodes)
+    // {
+    //     $student = $this->where('nim', $studentNim)->where('role', 'student')->first();
+
+    //     if ($student) {
+    //         $enrolledCourses = json_decode($student['enrolled_courses'] ?? '[]', true);
+
+    //         // Gabungkan courseCodes baru dengan yang sudah ada, hindari duplikasi
+    //         $enrolledCourses = array_unique(array_merge($enrolledCourses, $courseCodes));
+
+    //         return $this->update($student['nim'], [
+    //             'enrolled_courses' => json_encode(array_values($enrolledCourses))
+    //         ]);
+    //     }
+    //     return false;
+    // }
+    public function enrollMultipleCourses($studentNim, $courseCodes = [])
+    {
+        $success = true;
+        foreach ($courseCodes as $code) {
+            $result = $this->enrollCourse($studentNim, $code);
+            if (!$result) {
+                $success = false; // kalau ada yang gagal, flag aja
+            }
+        }
+        return $success;
+    }
+
     // Method untuk unenroll course
     public function unenrollCourse($studentNim, $courseCode)
     {

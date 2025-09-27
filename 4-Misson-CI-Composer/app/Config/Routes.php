@@ -50,6 +50,7 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
 $routes->group('student', ['filter' => 'auth'], function ($routes) {
     $routes->get('courses', 'Student::courses');
     $routes->get('enrollments', 'Student::enrollments');
+    $routes->post('enrollMultiple', 'Student::enrollMultiple');
     $routes->get('enroll/(:any)', 'Student::enroll/$1');
     $routes->get('unenroll/(:any)', 'Student::unenroll/$1');
 });
