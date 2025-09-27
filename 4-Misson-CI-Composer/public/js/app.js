@@ -6,7 +6,7 @@ const students = [
 ];
 
 // Data Mata Kuliah
-const courses = [
+const courses_manual = [
   { id: 1, name: 'Pemrograman Web', sks: 3 },
   { id: 2, name: 'Basis Data', sks: 3 },
   { id: 3, name: 'Struktur Data', sks: 2 }
@@ -15,7 +15,10 @@ const courses = [
 //  DOM Selector & Manipulation
 
 document.addEventListener('DOMContentLoaded', () => {
+  // 1. Memilih elemen kontainer di HTML
   const courseList = document.getElementById('course-list');
+
+   // 2. Looping data mata kuliah dari array courses
   const totalSks = document.getElementById('total-sks');
 
   // Menampilkan daftar mata kuliah
@@ -75,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (hasEnrolled) {
             alert('Anda sudah terdaftar di salah satu mata kuliah yang dipilih.');
-            return;
+            return; 
         }
 
 
