@@ -24,13 +24,22 @@ class Student extends BaseController
         $data['title'] = 'Daftar Courses';
         $data['courses'] = $model->getCourses();
 
-        // Cek courses yang sudah diambil
-        $enrolledCourses = $model->getStudentEnrollments($this->session->get('user_nim'));
+        // PERBAIKAN: Pastikan enrolled_codes terisi dengan benar
+        $studentNim = $this->session->get('user_nim');
+        $enrolledCourses = $model->getStudentEnrollments($studentNim);
+
+        // DEBUG: Log untuk memastikan data benar
+        log_message('debug', 'Student NIM: ' . $studentNim);
+        log_message('debug', 'Enrolled courses: ' . json_encode($enrolledCourses));
+
+        // Ambil nim dari enrolled courses
         $enrolledCodes = array_column($enrolledCourses, 'nim');
         $data['enrolled_codes'] = $enrolledCodes;
 
-        $data['content'] = view('student/courses', $data);
+        // DEBUG: Log enrolled codes
+        log_message('debug', 'Enrolled codes: ' . json_encode($enrolledCodes));
 
+        $data['content'] = view('student/courses', $data);
         return view('layout_dashboard', $data);
     }
 
@@ -46,21 +55,21 @@ class Student extends BaseController
         return view('layout_dashboard', $data);
     }
 
-    // MODIFIKASI: Menggabungkan fungsi enroll dan drop dalam satu method
+    // Menggabungkan fungsi enroll dan drop dalam satu method
     // Sekarang menangani baik enrollment maupun drop tanpa refresh halaman
     public function enrollMultiple()
     {
-        // PERBAIKAN: Debug request untuk melihat masalahnya
+        // Debug request untuk melihat masalahnya
         // Sementara hapus validasi AJAX untuk testing
         /*if (!$this->request->isAJAX()) {
             return $this->response->setStatusCode(400)
                 ->setJSON(['success' => false, 'message' => 'Invalid request']);
         }*/
 
-        // TAMBAHAN: Set response header untuk JSON
+        // Set response header untuk JSON
         $this->response->setContentType('application/json');
 
-        // PERBAIKAN: Coba ambil data dari POST atau JSON
+        // Coba ambil data dari POST atau JSON
         $data = $this->request->getJSON(true);
         if (empty($data)) {
             $data = $this->request->getPost();
@@ -68,7 +77,7 @@ class Student extends BaseController
 
         // DEBUG: Log data untuk troubleshooting
         log_message('debug', 'Received data: ' . json_encode($data));
-        $action = $data['action'] ?? 'enroll'; // TAMBAHAN: Menentukan aksi (enroll/drop)
+        $action = $data['action'] ?? 'enroll'; // Menentukan aksi (enroll/drop)
         $courseCodes = $data['courses'] ?? [];
         $totalSKS = $data['total_sks'] ?? 0;
         $studentNim = $this->session->get('user_nim');
@@ -82,14 +91,14 @@ class Student extends BaseController
 
         $model = new \App\Models\User_model();
 
-        // MODIFIKASI: Menentukan operasi berdasarkan action
+        // Menentukan operasi berdasarkan action
         if ($action === 'enroll') {
             $success = $model->enrollMultipleCourses($studentNim, $courseCodes);
             $message = $success ?
                 'Berhasil enroll ' . count($courseCodes) . ' course. Total SKS: ' . $totalSKS :
                 'Sebagian course gagal diproses.';
         } else if ($action === 'drop') {
-            // TAMBAHAN: Memanggil fungsi untuk drop multiple courses
+            // Memanggil fungsi untuk drop multiple courses
             $success = $model->dropMultipleCourses($studentNim, $courseCodes);
             $message = $success ?
                 'Berhasil drop ' . count($courseCodes) . ' course. Total SKS: ' . $totalSKS :
@@ -107,7 +116,7 @@ class Student extends BaseController
         ]);
     }
 
-    // FUNGSI INDIVIDUAL ENROLL (tetap ada untuk keperluan tertentu)
+    // FUNGSI INDIVIDUAL ENROLL
     public function enroll($courseCode)
     {
         $model = new User_model();
@@ -155,7 +164,7 @@ class Student extends BaseController
         }
     }
 
-    // FUNGSI INDIVIDUAL UNENROLL (tetap ada untuk keperluan tertentu)
+    // FUNGSI INDIVIDUAL UNENROLL
     public function unenroll($courseCode)
     {
         $model = new User_model();

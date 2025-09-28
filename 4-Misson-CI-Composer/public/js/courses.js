@@ -16,8 +16,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const dropBtn = document.getElementById("submit-drop");
     const resetBtn = document.getElementById("reset-selection");
 
-    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    const csrfHeader = 'X-CSRF-TOKEN';
+    // DEBUG: Check CSRF token
+    const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
+    const csrfToken = csrfTokenMeta ? csrfTokenMeta.getAttribute('content') : null;
+    
+    console.log('CSRF Token found:', csrfToken ? 'Yes' : 'No');
+    console.log('CSRF Token value:', csrfToken);
 
     function updateSummary() {
         let enrollSks = 0;
@@ -71,66 +75,111 @@ document.addEventListener("DOMContentLoaded", () => {
         dropBtn.disabled = dropCourses.length === 0;
     }
 
-    // MODIFIKASI: Mengganti processTransactions dengan processCourses yang langsung ke enrollMultiple
-    // Fungsi ini menangani AJAX tanpa refresh halaman
+    // Simplified function dengan lebih banyak debugging
     async function processCourses(action, courseCodes, totalSKS) {
-        if (courseCodes.length === 0) return;
+        console.log('=== DEBUG PROCESS COURSES ===');
+        console.log('Action:', action);
+        console.log('Course Codes:', courseCodes);
+        console.log('Total SKS:', totalSKS);
+        
+        if (courseCodes.length === 0) {
+            console.log('No courses selected');
+            return;
+        }
 
         const button = action === 'enroll' ? enrollBtn : dropBtn;
         const originalText = button.innerHTML;
         
-        // TAMBAHAN: Loading state untuk UX yang lebih baik
+        // Loading state
         button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Memproses...';
         button.disabled = true;
 
+        // Prepare data
+        const requestData = {
+            action: action,
+            courses: courseCodes,
+            total_sks: totalSKS
+        };
+        
+        console.log('Request data:', requestData);
+
         try {
-            // PERBAIKAN: Menambahkan beberapa fallback untuk CSRF
-            const headers = {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            };
+            // Menggunakan FormData sebagai fallback
+            const formData = new FormData();
+            formData.append('action', action);
+            formData.append('courses', JSON.stringify(courseCodes));
+            formData.append('total_sks', totalSKS);
             
-            // Coba berbagai cara untuk mengirim CSRF token
+            // Add CSRF token if available
             if (csrfToken) {
-                headers['X-CSRF-TOKEN'] = csrfToken;
-                headers['X-Requested-With'] = 'XMLHttpRequest'; // Menandai sebagai AJAX request
+                formData.append('csrf_test_name', csrfToken);
             }
-            
-            // MODIFIKASI: Menggunakan endpoint enrollMultiple dengan parameter action
-            const response = await fetch('/student/enrollMultiple', {
+
+            console.log('Sending request to:', window.location.origin + '/student/enrollMultiple');
+
+            // try method 1:  JSON
+            let response = await fetch('/student/enrollMultiple', {
                 method: 'POST',
-                headers: headers,
-                body: JSON.stringify({
-                    action: action,  // TAMBAHAN: Mengirim action (enroll/drop)
-                    courses: courseCodes,
-                    total_sks: totalSKS
-                }),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    ...(csrfToken && {'X-CSRF-TOKEN': csrfToken})
+                },
+                body: JSON.stringify(requestData)
             });
 
-            const data = await response.json();
+            console.log('Response status:', response.status);
+            console.log('Response headers:', [...response.headers.entries()]);
+
+            // If JSON fails, try FormData
+            if (!response.ok) {
+                console.log('JSON method failed, trying FormData...');
+                response = await fetch('/student/enrollMultiple', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        ...(csrfToken && {'X-CSRF-TOKEN': csrfToken})
+                    },
+                    body: formData
+                });
+            }
+
+            const responseText = await response.text();
+            console.log('Raw response:', responseText);
+            
+            let data;
+            try {
+                data = JSON.parse(responseText);
+            } catch (e) {
+                console.error('Failed to parse JSON:', e);
+                throw new Error('Invalid JSON response: ' + responseText);
+            }
+
+            console.log('Parsed response:', data);
 
             if (data.success) {
-                // MODIFIKASI: Menggunakan alert yang lebih informatif
-                alert(`✅ ${data.message}`);
-                
-                // TAMBAHAN: Update UI secara real-time tanpa refresh
+                alert(`${data.message}`);
                 updateUIAfterSuccess(action, courseCodes);
             } else {
-                alert(`❌ Error: ${data.message}`);
+                alert(`Error: ${data.message}`);
             }
 
         } catch (error) {
-            console.error('Fetch Error:', error);
-            alert('🔗 Terjadi kesalahan jaringan. Silakan coba lagi.');
+            console.error('=== FETCH ERROR ===');
+            console.error('Error details:', error);
+            console.error('Error message:', error.message);
+            console.error('Error stack:', error.stack);
+            alert(`🔗 Terjadi kesalahan: ${error.message}`);
         } finally {
-            // PERBAIKAN: Restore button state
             button.innerHTML = originalText;
             button.disabled = false;
-            updateSummary(); // Update status tombol
+            updateSummary();
         }
     }
 
-    // TAMBAHAN: Fungsi untuk update UI setelah sukses tanpa refresh halaman
+    // Update UI after success
     function updateUIAfterSuccess(action, courseCodes) {
         courseCodes.forEach(courseCode => {
             const checkbox = document.querySelector(`input[value="${courseCode}"]`);
@@ -139,28 +188,22 @@ document.addEventListener("DOMContentLoaded", () => {
                 const statusCell = row.querySelector('td:last-child');
                 
                 if (action === 'enroll') {
-                    // Update dari "Belum Diambil" ke "Sudah Diambil"
                     checkbox.dataset.enrolled = '1';
                     statusCell.innerHTML = '<span class="badge badge-success">Sudah Diambil</span>';
                 } else if (action === 'drop') {
-                    // Update dari "Sudah Diambil" ke "Belum Diambil"
                     checkbox.dataset.enrolled = '0';
                     statusCell.innerHTML = '<span class="badge badge-secondary">Belum Diambil</span>';
                 }
                 
-                // Uncheck checkbox setelah proses selesai
                 checkbox.checked = false;
             }
         });
         
-        // Reset select all jika ada
         if (selectAll) selectAll.checked = false;
-        
-        // Update summary
         updateSummary();
     }
 
-    // --- EVENT LISTENERS (tidak berubah) ---
+    // --- EVENT LISTENERS ---
     checkboxes.forEach(cb => cb.addEventListener("change", updateSummary));
     
     if (selectAll) {
@@ -176,7 +219,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 .filter(cb => cb.checked && cb.dataset.enrolled === '0')
                 .map(cb => cb.value);
             
-            // MODIFIKASI: Menambahkan perhitungan total SKS untuk enroll
             const totalSKS = Array.from(checkboxes)
                 .filter(cb => cb.checked && cb.dataset.enrolled === '0')
                 .reduce((total, cb) => total + parseInt(cb.dataset.sks || 0), 0);
@@ -191,7 +233,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 .filter(cb => cb.checked && cb.dataset.enrolled === '1')
                 .map(cb => cb.value);
             
-            // TAMBAHAN: Menambahkan perhitungan total SKS untuk drop
             const totalSKS = Array.from(checkboxes)
                 .filter(cb => cb.checked && cb.dataset.enrolled === '1')
                 .reduce((total, cb) => total + parseInt(cb.dataset.sks || 0), 0);
@@ -208,6 +249,15 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
     
-    // Panggil sekali saat halaman dimuat
+    // Initial call
     updateSummary();
+    
+    // DEBUG: Log when script is loaded
+    console.log('Courses.js loaded successfully');
+    console.log('Found checkboxes:', checkboxes.length);
+    console.log('Found buttons:', {
+        enroll: !!enrollBtn,
+        drop: !!dropBtn,
+        reset: !!resetBtn
+    });
 });
