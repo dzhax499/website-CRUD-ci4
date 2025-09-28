@@ -41,120 +41,73 @@ class Student extends BaseController
 
         $data['title'] = 'Mata Kuliah Saya';
         $data['enrolled_courses'] = $model->getStudentEnrollments($studentNim);
-        $data['content'] = view('student/enrollments', $data); 
+        $data['content'] = view('student/enrollments', $data);
 
         return view('layout_dashboard', $data);
     }
-    // enroll multiple courses
+
+    // MODIFIKASI: Menggabungkan fungsi enroll dan drop dalam satu method
+    // Sekarang menangani baik enrollment maupun drop tanpa refresh halaman
     public function enrollMultiple()
     {
-        $model = new User_model();
+        // PERBAIKAN: Debug request untuk melihat masalahnya
+        // Sementara hapus validasi AJAX untuk testing
+        /*if (!$this->request->isAJAX()) {
+            return $this->response->setStatusCode(400)
+                ->setJSON(['success' => false, 'message' => 'Invalid request']);
+        }*/
+
+        // TAMBAHAN: Set response header untuk JSON
+        $this->response->setContentType('application/json');
+
+        // PERBAIKAN: Coba ambil data dari POST atau JSON
+        $data = $this->request->getJSON(true);
+        if (empty($data)) {
+            $data = $this->request->getPost();
+        }
+
+        // DEBUG: Log data untuk troubleshooting
+        log_message('debug', 'Received data: ' . json_encode($data));
+        $action = $data['action'] ?? 'enroll'; // TAMBAHAN: Menentukan aksi (enroll/drop)
+        $courseCodes = $data['courses'] ?? [];
+        $totalSKS = $data['total_sks'] ?? 0;
         $studentNim = $this->session->get('user_nim');
-        $selectedCourses = $this->request->getPost('selected_courses') ?? [];
 
-        if (empty($selectedCourses)) {
-            return redirect()->back()->with('error', 'Tidak ada mata kuliah yang dipilih!');
+        if (empty($courseCodes)) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Tidak ada course yang dipilih.'
+            ]);
         }
 
-        $allCourses = $model->getCourses();
-        $courseMap = [];
-        foreach ($allCourses as $course) {
-            $courseMap[$course['nim']] = $course;
+        $model = new \App\Models\User_model();
+
+        // MODIFIKASI: Menentukan operasi berdasarkan action
+        if ($action === 'enroll') {
+            $success = $model->enrollMultipleCourses($studentNim, $courseCodes);
+            $message = $success ?
+                'Berhasil enroll ' . count($courseCodes) . ' course. Total SKS: ' . $totalSKS :
+                'Sebagian course gagal diproses.';
+        } else if ($action === 'drop') {
+            // TAMBAHAN: Memanggil fungsi untuk drop multiple courses
+            $success = $model->dropMultipleCourses($studentNim, $courseCodes);
+            $message = $success ?
+                'Berhasil drop ' . count($courseCodes) . ' course. Total SKS: ' . $totalSKS :
+                'Sebagian course gagal di-drop.';
+        } else {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Action tidak valid.'
+            ]);
         }
 
-        $enrolledCourses = $model->getStudentEnrollments($studentNim);
-        $enrolledCodes = array_column($enrolledCourses, 'nim');
-
-        $successCount = 0;
-        $errorMessages = [];
-
-        foreach ($selectedCourses as $courseCode) {
-            // Cek apakah course exists
-            if (!isset($courseMap[$courseCode])) {
-                $errorMessages[] = "Course dengan kode $courseCode tidak ditemukan.";
-                continue;
-            }
-
-            // Cek apakah sudah enroll
-            if (in_array($courseCode, $enrolledCodes)) {
-                $errorMessages[] = "Anda sudah terdaftar di course dengan kode $courseCode.";
-                continue;
-            }
-
-            // Cek kuota
-            $courseDetail = json_decode($courseMap[$courseCode]['enrolled_courses'], true);
-            $kuota = $courseDetail['kuota'] ?? 0;
-
-            // Hitung jumlah student yang sudah enroll (simplified)
-            $allStudents = $model->getStudents();
-            $currentEnrolled = 0;
-            foreach ($allStudents as $student) {
-                if ($student['enrolled_courses']) {
-                    $studentCourses = json_decode($student['enrolled_courses'], true);
-                    if (is_array($studentCourses) && in_array($courseCode, $studentCourses)) {
-                        $currentEnrolled++;
-                    }
-                }
-            }
-
-            if ($currentEnrolled >= $kuota) {
-                $errorMessages[] = "Kuota untuk course dengan kode $courseCode sudah penuh.";
-                continue;
-            }
-
-            // Enroll
-            if ($model->enrollCourse($studentNim, $courseCode)) {
-                $successCount++;
-            } else {
-                $errorMessages[] = "Gagal enroll course dengan kode $courseCode.";
-            }
-        }
-        $message = "$successCount mata kuliah berhasil di-enroll.";
-        if (!empty($errorMessages)) {
-            $message .= ' Namun, beberapa kesalahan terjadi: ' . implode(' ', $errorMessages);
-            return redirect()->back()->with('error', $message);
-        } 
-        return redirect()->back()->with('success', $message);
+        return $this->response->setJSON([
+            'success' => $success,
+            'message' => $message
+        ]);
     }
 
-    // public function enrollMultiple()
-    // {
-    //     if (!$this->request->isAJAX()) {
-    //         return $this->response->setStatusCode(400)
-    //             ->setJSON(['success' => false, 'message' => 'Invalid request']);
-    //     }
-
-    //     $data = $this->request->getJSON(true);
-    //     $courseCodes = $data['courses'] ?? [];
-    //     $totalSKS = $data['total_sks'] ?? 0;
-    //     $studentNim = $this->session->get('user_nim');
-
-    //     if (empty($courseCodes)) {
-    //         return $this->response->setJSON([
-    //             'success' => false,
-    //             'message' => 'Tidak ada course yang dipilih.'
-    //         ]);
-    //     }
-
-    //     $model = new User_model();
-
-    //     // Loop enroll semua courses
-    //     $success = $model->enrollMultipleCourses($studentNim, $courseCodes);
-
-    //     if ($success) {
-    //         return $this->response->setJSON([
-    //             'success' => true,
-    //             'message' => 'Berhasil enroll ' . count($courseCodes) . ' course. Total SKS: ' . $totalSKS
-    //         ]);
-    //     } else {
-    //         return $this->response->setJSON([
-    //             'success' => false,
-    //             'message' => 'Sebagian course gagal diproses.'
-    //         ]);
-    //     }
-    // }
-
-
+    // FUNGSI INDIVIDUAL ENROLL (tetap ada untuk keperluan tertentu)
     public function enroll($courseCode)
     {
         $model = new User_model();
@@ -202,6 +155,7 @@ class Student extends BaseController
         }
     }
 
+    // FUNGSI INDIVIDUAL UNENROLL (tetap ada untuk keperluan tertentu)
     public function unenroll($courseCode)
     {
         $model = new User_model();

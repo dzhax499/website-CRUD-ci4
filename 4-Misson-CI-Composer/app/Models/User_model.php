@@ -97,6 +97,15 @@ class User_model extends Model
         }
         return $success;
     }
+    public function dropMultipleCourses($studentNim, $courseCodes)
+    {
+        foreach ($courseCodes as $courseCode) {
+            if (!$this->unenrollCourse($studentNim, $courseCode)) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     // Method untuk unenroll course
     public function unenrollCourse($studentNim, $courseCode)

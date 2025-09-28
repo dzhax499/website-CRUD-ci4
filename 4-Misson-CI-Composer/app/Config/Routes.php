@@ -50,7 +50,12 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
 $routes->group('student', ['filter' => 'auth'], function ($routes) {
     $routes->get('courses', 'Student::courses');
     $routes->get('enrollments', 'Student::enrollments');
-    $routes->post('enrollMultiple', 'Student::enrollMultiple');
+
+    // MODIFIKASI: enrollMultiple sekarang menangani baik enroll maupun drop
+    // Fungsi processTransactions DIHAPUS dan diganti dengan enrollMultiple yang lebih powerful
+    $routes->post('enrollMultiple', 'Student::enrollMultiple'); // Handles both enroll and drop via action parameter
+
+    // TETAP DIPERTAHANKAN: Individual enroll/unenroll untuk keperluan khusus
     $routes->get('enroll/(:any)', 'Student::enroll/$1');
     $routes->get('unenroll/(:any)', 'Student::unenroll/$1');
 });
