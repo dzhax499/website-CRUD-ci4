@@ -21,18 +21,6 @@ document.addEventListener('DOMContentLoaded', () => {
    // 2. Looping data mata kuliah dari array courses
   const totalSks = document.getElementById('total-sks');
 
-  // Menampilkan daftar mata kuliah
-  courses.forEach(course => {
-    const courseItem = document.createElement('div');
-    courseItem.innerHTML = `
-      <input type="checkbox" id="course-${course.id}" name="courses" value="${course.id}" data-sks="${course.sks}">
-      <label for="course-${course.id}">${course.name} (${course.sks} SKS)</label>
-    `;
-    if (courseList) {
-        courseList.appendChild(courseItem);
-    }
-  });
-
   // Event Handling
   const enrollForm = document.getElementById('enroll-form');
   const courseCheckboxes = document.querySelectorAll('input[name="courses"]');

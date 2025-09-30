@@ -36,9 +36,26 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->post('courses/update/(:any)', 'Admin::updateCourse/$1');
     $routes->get('courses/delete/(:any)', 'Admin::deleteCourse/$1');
 
-    // Student management
+    // Student management (traditional CRUD)
     $routes->get('students', 'Admin::students');
-    $routes->get('students/view/(:any)', 'Admin::viewStudent/$1');
+    $routes->get('students', 'Admin::students');
+    $routes->get('addStudent', 'Admin::addStudent');
+    $routes->post('storeStudent', 'Admin::storeStudent');
+    $routes->get('viewStudent/(:any)', 'Admin::viewStudent/$1');
+    $routes->get('editStudent/(:any)', 'Admin::editStudent/$1');
+    $routes->post('updateStudent/(:any)', 'Admin::updateStudent/$1');
+    $routes->post('deleteStudent/(:any)', 'Admin::deleteStudent/$1');
+
+    // student management (AJAX NO REFRESH  CRUD)
+    $routes->get('getStudentsAjax', 'Admin::getStudentsAjax');
+    $routes->post('storeStudentAjax', 'Admin::storeStudentAjax');
+    $routes->get('getStudentAjax/(:any)', 'Admin::getStudentAjax/$1');
+    $routes->post('updateStudentAjax/(:any)', 'Admin::updateStudentAjax/$1');
+    $routes->post('deleteStudentAjax/(:any)', 'Admin::deleteStudentAjax/$1');
+
+    // navigate to student detail from admin student list
+    $routes->get('loadPage/(:any)', 'Admin::loadPage/$1');
+
 
     // Enrollment management
     $routes->get('manageEnrollment/(:any)', 'Admin::manageEnrollment/$1');
