@@ -22,6 +22,7 @@ $routes->post('/auth/authenticate', 'Auth::authenticate');
 $routes->get('/auth/logout', 'Auth::logout');
 $routes->get('/auth/register', 'Auth::register');
 $routes->post('/auth/store', 'Auth::store');
+$routes->get('loadPage/(:any)', 'Admin::loadPage/$1');
 
 // Dashboard routes (role-based)
 $routes->get('/dashboard', 'Dashboard::index');
@@ -52,9 +53,6 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->get('getStudentAjax/(:any)', 'Admin::getStudentAjax/$1');
     $routes->post('updateStudentAjax/(:any)', 'Admin::updateStudentAjax/$1');
     $routes->post('deleteStudentAjax/(:any)', 'Admin::deleteStudentAjax/$1');
-
-    // navigate to student detail from admin student list
-    $routes->get('loadPage/(:any)', 'Admin::loadPage/$1');
 
 
     // Enrollment management

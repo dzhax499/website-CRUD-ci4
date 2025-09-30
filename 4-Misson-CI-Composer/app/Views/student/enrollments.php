@@ -1,16 +1,3 @@
-<h2>Enroll Course</h2>
-<form id="enroll-form">
-    <div class="form-group">
-        <label>Pilih Mata Kuliah:</label>
-        <!-- JS akan mengisi daftar di sini -->
-        <div id="course-list"></div>
-    </div>
-    <div class="mt-3">
-        <strong>Total SKS: <span id="total-sks">0</span></strong>
-    </div>
-    <button type="submit" class="btn btn-primary mt-3">Submit</button>
-</form>
-
 <div class="card-header">
     <h3 class="card-title">Daftar Mata Kuliah yang Diambil</h3>
 </div>

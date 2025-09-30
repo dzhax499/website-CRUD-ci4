@@ -2,7 +2,6 @@
     <div class="card-header">
         <h3 class="card-title">Daftar Mahasiswa</h3>
         <div class="card-tools">
-            <!-- Tambahkan ini di atas table untuk testing -->
             <button type="button" class="btn btn-primary btn-sm" onclick="$('#addStudentModal').modal('show')">
                 <i class="fas fa-plus"></i> Tambah Mahasiswa
             </button>
