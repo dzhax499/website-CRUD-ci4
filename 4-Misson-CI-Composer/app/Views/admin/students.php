@@ -347,7 +347,6 @@
                 error: function() {
                     showAlert('danger', 'Terjadi kesalahan sistem');
                 },
-                complete: function() {}
             });
         });
 

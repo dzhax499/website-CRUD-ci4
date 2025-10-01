@@ -5,12 +5,6 @@
     </div>
 </div>
 <div class="card-body">
-    <?php if (session()->getFlashdata('success')) : ?>
-        <div class="alert alert-success"><?= session()->getFlashdata('success') ?></div>
-    <?php endif; ?>
-    <?php if (session()->getFlashdata('error')) : ?>
-        <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
-    <?php endif; ?>
 
     <?php if (!empty($courses) && is_array($courses)) : ?>
         <table class="table table-bordered table-striped">
